@@ -11,7 +11,7 @@ for k in (0, 25, 50, 75, 100):
         entry_point="matrixgames.games:MatrixGame",
         kwargs={
             "payoff_matrix": _payoff,
-            "ep_length": 1,
+            "ep_length": 1000,
             "last_action_state": False,
         }
     )
@@ -20,7 +20,7 @@ for k in (0, 25, 50, 75, 100):
         entry_point="matrixgames.games:MatrixGame",
         kwargs={
             "payoff_matrix": _payoff,
-            "ep_length": 1,
+            "ep_length": 1000,
             "last_action_state": True,
         }
     )
@@ -36,7 +36,7 @@ register(
     entry_point="matrixgames.games:MatrixGame",
     kwargs={
         "payoff_matrix": _payoff_climbing,
-        "ep_length": 1,
+        "ep_length": 1000,
         "last_action_state": False,
     }
 )
@@ -46,7 +46,7 @@ register(
     entry_point="matrixgames.games:MatrixGame",
     kwargs={
         "payoff_matrix": _payoff_climbing,
-        "ep_length": 1,
+        "ep_length": 1000,
         "last_action_state": True,
     }
 )
