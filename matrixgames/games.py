@@ -48,22 +48,24 @@ class MatrixGame(gym.Env):
         self.t = 0
 
         self.action_space = gym.spaces.Tuple([gym.spaces.Discrete(num_action) for num_action in self.num_actions])
-        if last_action_state:
-            shape = (self.n_agents, self.num_actions[0])
-            low = np.zeros(shape)
-            high = np.ones(shape)
-            obs_space = gym.spaces.Box(shape=shape, low=low, high=high)
-            self.observation_space = gym.spaces.Tuple([obs_space for _ in range(self.n_agents)])
-        else:
-            self.observation_space = gym.spaces.Tuple([gym.spaces.Discrete(1) for _ in range(self.n_agents)])
 
-    def reset(self):
-        self.t = 0
-        self.last_actions = actions_to_onehot(self.num_actions, [0] * self.n_agents)
+        shape = (self.n_agents, )
+        low = np.zeros(shape)
+        high = np.ones(shape)
+        obs_space = gym.spaces.Box(shape=shape, low=low, high=high)
+        self.observation_space = gym.spaces.Tuple([obs_space for _ in range(self.n_agents)])
+
+    def _make_obs(self):
         if self.last_action_state:
             return tuple([np.array(self.last_actions)]* self.n_agents)
         else:
             return tuple([np.array([0, 0])]* self.n_agents)
+
+    def reset(self):
+        self.t = 0
+        self.last_actions = actions_to_onehot(self.num_actions, [0] * self.n_agents)
+        
+        return self._make_obs()
 
     def step(self, action):
         self.t += 1
@@ -72,17 +74,12 @@ class MatrixGame(gym.Env):
         for a in action:
             reward = reward[a]
 
-        if self.last_action_state:
-            obs = [self.last_actions for _ in range(self.n_agents)]
-        else:
-            obs = [0] * self.n_agents
-
         if self.t >= self.ep_length:
             done = True
         else:
             done = False
 
-        return np.array(obs), [reward] * self.n_agents, [done] * self.n_agents, {}
+        return self._make_obs(), [reward] * self.n_agents, [done] * self.n_agents, {}
 
     def render(self):
         print(f"Step {self.t}:")
