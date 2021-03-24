@@ -3,19 +3,6 @@ import numpy as np
 import gym
 
 
-def matrix_shape(matrix, shape=[]):
-    """
-    Get shape of matrix
-    :param matrix: list of lists
-    :return: shape of matrix
-    """
-    if not isinstance(matrix, Iterable):
-        return shape
-    else:
-        shape.append(len(matrix))
-        return matrix_shape(matrix[0], shape)
-
-
 def actions_to_onehot(num_actions, actions):
     """
     Transfer actions to onehot representation
@@ -39,8 +26,8 @@ class MatrixGame(gym.Env):
                                   as state of the environment or just 0s for all agents
         """
         self.payoff = payoff_matrix
-        self.num_actions = matrix_shape(payoff_matrix, [])
-        self.n_agents = len(self.num_actions)
+        self.num_actions = self.payoff.shape[1], self.payoff.shape[2]
+        self.n_agents = self.payoff.shape[0]
         self.ep_length = ep_length
         self.last_action_state = last_action_state
 
@@ -64,22 +51,22 @@ class MatrixGame(gym.Env):
     def reset(self):
         self.t = 0
         self.last_actions = actions_to_onehot(self.num_actions, [0] * self.n_agents)
-        
+
         return self._make_obs()
 
     def step(self, action):
         self.t += 1
         self.last_actions = actions_to_onehot(self.num_actions, action)
         reward = self.payoff
-        for a in action:
-            reward = reward[a]
+
+        rewards = [self.payoff[i][action[0]][action[1]] for i in range(len(action))]
 
         if self.t >= self.ep_length:
             done = True
         else:
             done = False
 
-        return self._make_obs(), [reward] * self.n_agents, [done] * self.n_agents, {}
+        return self._make_obs(), rewards, [done] * self.n_agents, {}
 
     def render(self):
         print(f"Step {self.t}:")
