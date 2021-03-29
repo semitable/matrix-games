@@ -26,8 +26,9 @@ class MatrixGame(gym.Env):
                                   as state of the environment or just 0s for all agents
         """
         self.payoff = payoff_matrix
-        self.num_actions = self.payoff.shape[1], self.payoff.shape[2]
         self.n_agents = self.payoff.shape[0]
+        self.num_actions = [self.payoff.shape[i+1] for i in range(self.n_agents)]
+
         self.ep_length = ep_length
         self.last_action_state = last_action_state
 
@@ -46,11 +47,11 @@ class MatrixGame(gym.Env):
         if self.last_action_state:
             return tuple([np.array(self.last_actions)]* self.n_agents)
         else:
-            return tuple([np.array([0, 0])]* self.n_agents)
+            return tuple([np.array(self.n_agents*[0])]* self.n_agents)
 
     def reset(self):
         self.t = 0
-        self.last_actions = actions_to_onehot(self.num_actions, [0] * self.n_agents)
+        # self.last_actions = actions_to_onehot(self.num_actions, [0] * self.n_agents)
 
         return self._make_obs()
 
@@ -59,7 +60,12 @@ class MatrixGame(gym.Env):
         self.last_actions = actions_to_onehot(self.num_actions, action)
         reward = self.payoff
 
-        rewards = [self.payoff[i][action[0]][action[1]] for i in range(len(action))]
+        rewards = [0 for _ in range(len(action))]
+        for i in range(len(action)):
+            temp = self.payoff[i]
+            for j in range(len(action)):
+                temp = temp[action[j]]
+            rewards[i] = temp
 
         if self.t >= self.ep_length:
             done = True
