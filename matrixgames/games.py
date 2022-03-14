@@ -27,7 +27,7 @@ class MatrixGame(gym.Env):
         """
         self.payoff = payoff_matrix
         self.n_agents = self.payoff.shape[0]
-        self.num_actions = [self.payoff.shape[i+1] for i in range(self.n_agents)]
+        self.num_actions = [self.payoff.shape[i + 1] for i in range(self.n_agents)]
 
         self.ep_length = ep_length
         self.last_action_state = last_action_state
@@ -35,19 +35,23 @@ class MatrixGame(gym.Env):
         self.last_actions = [-1 for _ in range(self.n_agents)]
         self.t = 0
 
-        self.action_space = gym.spaces.Tuple([gym.spaces.Discrete(num_action) for num_action in self.num_actions])
+        self.action_space = gym.spaces.Tuple(
+            [gym.spaces.Discrete(num_action) for num_action in self.num_actions]
+        )
 
-        shape = (self.n_agents, )
+        shape = (self.n_agents,)
         low = np.zeros(shape)
         high = np.ones(shape)
         obs_space = gym.spaces.Box(shape=shape, low=low, high=high)
-        self.observation_space = gym.spaces.Tuple([obs_space for _ in range(self.n_agents)])
+        self.observation_space = gym.spaces.Tuple(
+            [obs_space for _ in range(self.n_agents)]
+        )
 
     def _make_obs(self):
         if self.last_action_state:
-            return tuple([np.array(self.last_actions)]* self.n_agents)
+            return tuple([np.array(self.last_actions)] * self.n_agents)
         else:
-            return tuple([np.array(self.n_agents*[0])]* self.n_agents)
+            return tuple([np.array(self.n_agents * [0])] * self.n_agents)
 
     def reset(self):
         self.t = 0
@@ -90,6 +94,7 @@ def create_penalty_game(penalty, ep_length, last_action_state=True):
     ]
     game = MatrixGame(payoff, ep_length, last_action_state)
     return game
+
 
 # climbing game
 def create_climbing_game(ep_length, last_action_state=True):
