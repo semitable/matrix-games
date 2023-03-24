@@ -27,6 +27,128 @@ for k in (0, 25, 50, 75, 100):
         },
     )
 
+_payoff_trivial = np.array(
+    2
+    * [
+        [
+            [11, 8, 0],
+            [8, 7, 0],
+            [0, 0, 0],
+        ]
+    ]
+)
+register(
+    f"trivial-nostate-v0",
+    entry_point="matrixgames.games:MatrixGame",
+    kwargs={
+        "payoff_matrix": _payoff_trivial,
+        "ep_length": 1000,
+        "last_action_state": False,
+    },
+)
+_payoff_linear = np.array(
+    2
+    * [
+        [
+            [1, 4, 2],
+            [0, 3, 1],
+            [2, 5, 3],
+        ]
+    ]
+)
+register(
+    f"linear-nostate-v0",
+    entry_point="matrixgames.games:MatrixGame",
+    kwargs={
+        "payoff_matrix": _payoff_linear,
+        "ep_length": 1000,
+        "last_action_state": False,
+    },
+)
+
+    # +0 | +3 | +1
+# -----------------
+# +1 | 1 |  4 |  2 
+# +0 | 0 |  3 |  1
+# +2 | 2 |  5 |  3
+
+_payoff_non_linear = np.array(
+    2
+    * [
+        [
+            [0, 3, 1],
+            [0, 0, 0],
+            [0, 6, 2],
+        ]
+    ]
+)
+register(
+    f"nonlinear-nostate-v0",
+    entry_point="matrixgames.games:MatrixGame",
+    kwargs={
+        "payoff_matrix": _payoff_non_linear,
+        "ep_length": 1000,
+        "last_action_state": False,
+    },
+)
+
+
+    # +0 | +3
+# -----------
+# +1 | 1 |  4
+# +2 | 2 |  5
+
+    #  +0 | +3
+# -------------
+# +1 |  0 |  3
+# +2 |  0 |  6
+_payoff_linear_2p = np.array(
+    2
+    * [
+        [
+            [1, 5],
+            [5, 9],
+        ]
+    ]
+)
+register(
+    f"linear-2p-nostate-v0",
+    entry_point="matrixgames.games:MatrixGame",
+    kwargs={
+        "payoff_matrix": _payoff_linear_2p,
+        "ep_length": 1000,
+        "last_action_state": False,
+    },
+)
+
+_payoff_nonlinear_2p = np.array(
+    2
+    * [
+        [
+            [0, 0],
+            [0, 10],
+        ]
+    ]
+)
+register(
+    f"nonlinear-2p-nostate-v0",
+    entry_point="matrixgames.games:MatrixGame",
+    kwargs={
+        "payoff_matrix": _payoff_nonlinear_2p,
+        "ep_length": 1000,
+        "last_action_state": False,
+    },
+)
+
+
+register(
+    f"twostep-2p-v0",
+    entry_point="matrixgames.games:TwoStep",
+    kwargs={
+        "payoff_matrix1": _payoff_linear_2p,
+        "payoff_matrix2": _payoff_nonlinear_2p,
+    },
+)
 
 _payoff_climbing = np.array(
     2

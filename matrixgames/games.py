@@ -84,6 +84,72 @@ class MatrixGame(gym.Env):
             print(f"\tAgent {i + 1} action: {self.last_actions[i]}")
 
 
+class TwoStep(gym.Env):
+    def __init__(self, payoff_matrix1, payoff_matrix2):
+        self.payoff1 = payoff_matrix1
+        self.payoff2 = payoff_matrix1
+
+        self.matrix1 = MatrixGame(payoff_matrix1, ep_length=1, last_action_state=False)
+        self.matrix2 = MatrixGame(payoff_matrix2, ep_length=1, last_action_state=False)
+        self.n_agents = self.matrix1.n_agents
+
+        self.ep_length = 2
+
+        self.action_space = self.matrix1.action_space
+        shape = (3,)
+        low = np.zeros(shape)
+        high = np.ones(shape)
+        obs_space = gym.spaces.Box(shape=shape, low=low, high=high)
+        self.observation_space = gym.spaces.Tuple(
+            [obs_space for _ in range(self.n_agents)]
+        )
+
+        self.t = 0
+        self.state = "A"
+
+    def _make_obs(self):
+        if self.state == "A":
+            x = [1, 0, 0]
+        elif self.state == "2A":
+            x = [0, 1, 0]
+        else:
+            x = [0, 0, 1]
+        return tuple([np.array(x)] * self.n_agents)
+
+    def reset(self):
+        self.state = "A"
+        self.t = 0
+        # self.last_actions = actions_to_onehot(self.num_actions, [0] * self.n_agents)
+        self.matrix1.reset()
+        self.matrix2.reset()
+
+        return self._make_obs()
+
+    def step(self, action):
+        if self.t == 0:
+            if action[0] == 0:
+                self.state = "2A"
+            else:
+                self.state = "2B"
+            rewards = self.n_agents * [0]
+        elif self.t == 1:
+            if self.state == "2A":
+                _, rewards, _, _ = self.matrix1.step(action)
+            elif self.state == "2B":
+                _, rewards, _, _ = self.matrix2.step(action)
+        else:
+            rewards = self.n_agents * [0]
+
+        if self.t == 0:
+            done = False
+        else:
+            done = True
+
+        self.t += 1
+
+        return self._make_obs(), rewards, [done] * self.n_agents, {}
+
+
 # penalty game
 def create_penalty_game(penalty, ep_length, last_action_state=True):
     assert penalty <= 0
