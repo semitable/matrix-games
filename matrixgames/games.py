@@ -1,6 +1,6 @@
 from collections.abc import Iterable
 import numpy as np
-import gym
+import gymnasium as gym
 
 
 def actions_to_onehot(num_actions, actions):
@@ -53,11 +53,10 @@ class MatrixGame(gym.Env):
         else:
             return tuple([np.array(self.n_agents * [0])] * self.n_agents)
 
-    def reset(self):
+    def reset(self, seed=None, options=None):
         self.t = 0
         # self.last_actions = actions_to_onehot(self.num_actions, [0] * self.n_agents)
-
-        return self._make_obs()
+        return self._make_obs(), {}
 
     def step(self, action):
         self.t += 1
@@ -71,12 +70,10 @@ class MatrixGame(gym.Env):
                 temp = temp[action[j]]
             rewards[i] = temp
 
-        if self.t >= self.ep_length:
-            done = True
-        else:
-            done = False
+        done = self.t >= self.ep_length
+        truncated = False
 
-        return self._make_obs(), rewards, [done] * self.n_agents, {}
+        return self._make_obs(), rewards, done, truncated, {}
 
     def render(self):
         print(f"Step {self.t}:")
@@ -116,14 +113,14 @@ class TwoStep(gym.Env):
             x = [0, 0, 1]
         return tuple([np.array(x)] * self.n_agents)
 
-    def reset(self):
+    def reset(self, seed=None, options=None):
         self.state = "A"
         self.t = 0
         # self.last_actions = actions_to_onehot(self.num_actions, [0] * self.n_agents)
         self.matrix1.reset()
         self.matrix2.reset()
 
-        return self._make_obs()
+        return self._make_obs(), {}
 
     def step(self, action):
         if self.t == 0:
@@ -140,14 +137,11 @@ class TwoStep(gym.Env):
         else:
             rewards = self.n_agents * [0]
 
-        if self.t == 0:
-            done = False
-        else:
-            done = True
-
+        done = self.t != 0
+        truncated = false
         self.t += 1
 
-        return self._make_obs(), rewards, [done] * self.n_agents, {}
+        return self._make_obs(), rewards, done, truncated, {}
 
 
 # penalty game

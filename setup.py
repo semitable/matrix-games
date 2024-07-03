@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="matrixgames",
-    version="0.0.1",
+    version="0.0.2",
     description="Matrix Games for Multi-Agent Reinforcement Learning",
     url="https://github.com/semitable/matrix-games",
     packages=find_packages(exclude=["contrib", "docs", "tests"]),
@@ -13,6 +13,6 @@ setup(
         "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
     ],
-    install_requires=["numpy", "gym>=0.12"],
+    install_requires=["numpy", "gymnasium"],
     include_package_data=True,
 )

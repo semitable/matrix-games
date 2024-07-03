@@ -1,4 +1,4 @@
-from gym import register
+from gymnasium import register
 import numpy as np
 
 for k in (0, 25, 50, 75, 100):
