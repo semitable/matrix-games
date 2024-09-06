@@ -1,4 +1,3 @@
-from collections.abc import Iterable
 import numpy as np
 import gymnasium as gym
 
@@ -17,6 +16,11 @@ def actions_to_onehot(num_actions, actions):
 
 
 class MatrixGame(gym.Env):
+    metadata = {
+        "render_modes": ["ansi"],
+        "render_fps": 5,
+    }
+
     def __init__(self, payoff_matrix, ep_length, last_action_state=True):
         """
         Create matrix game
@@ -76,12 +80,19 @@ class MatrixGame(gym.Env):
         return self._make_obs(), rewards, done, truncated, {}
 
     def render(self):
-        print(f"Step {self.t}:")
-        for i in range(self.n_agents):
-            print(f"\tAgent {i + 1} action: {self.last_actions[i]}")
+        if self.last_action_state:
+            out = " | ".join([f"Agent {i + 1}: {self.last_actions[i]}" for i in range(self.n_agents)])
+        else:
+            out = f"Step {self.t}"
+        return out
 
 
 class TwoStep(gym.Env):
+    metadata = {
+        "render_modes": ["ansi"],
+        "render_fps": 5,
+    }
+
     def __init__(self, payoff_matrix1, payoff_matrix2):
         self.payoff1 = payoff_matrix1
         self.payoff2 = payoff_matrix1
@@ -116,7 +127,6 @@ class TwoStep(gym.Env):
     def reset(self, seed=None, options=None):
         self.state = "A"
         self.t = 0
-        # self.last_actions = actions_to_onehot(self.num_actions, [0] * self.n_agents)
         self.matrix1.reset()
         self.matrix2.reset()
 
@@ -131,17 +141,21 @@ class TwoStep(gym.Env):
             rewards = self.n_agents * [0]
         elif self.t == 1:
             if self.state == "2A":
-                _, rewards, _, _ = self.matrix1.step(action)
-            elif self.state == "2B":
-                _, rewards, _, _ = self.matrix2.step(action)
+                _, rewards, _, _, _ = self.matrix1.step(action)
+            else:
+                # state "2B"
+                _, rewards, _, _, _ = self.matrix2.step(action)
         else:
             rewards = self.n_agents * [0]
 
         done = self.t != 0
-        truncated = false
+        truncated = False
         self.t += 1
 
         return self._make_obs(), rewards, done, truncated, {}
+
+    def render(self):
+        return f"Step {self.t} at state {self.state}"
 
 
 # penalty game
